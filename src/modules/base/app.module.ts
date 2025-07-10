@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { LoggingModule } from '../../common/logging/logging.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config';
@@ -23,13 +22,17 @@ import { UserModule } from '../user/user.module';
           database: config.get('DB_NAME'),
           autoLoadModels: true,
           synchronize: false,
-          logging: true,
+          logging:
+            config.get<string>('NODE_ENV') === 'development'
+              ? console.log
+              : false,
         };
       },
     }),
+    LoggingModule,
     UserModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
