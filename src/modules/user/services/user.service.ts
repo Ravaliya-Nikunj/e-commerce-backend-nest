@@ -5,11 +5,14 @@ import { UserRepository } from '../repositories/user.repository';
 @Injectable()
 export class UserService {
   constructor(private userRepository: UserRepository) {}
+  create = async (user: User, transaction?: any): Promise<User> => {
+    return await this.userRepository.create(user, transaction);
+  };
   findAll = async (): Promise<User[]> => {
-    return this.userRepository.findAll();
+    return await this.userRepository.findAll();
   };
 
   findByEmail = async (email: string): Promise<User | null> => {
-    return this.userRepository.findByEmail(email);
+    return await this.userRepository.findByEmail(email);
   };
 }

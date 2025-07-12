@@ -14,6 +14,7 @@ import { BcryptUtil } from '../../../shared/utils/bcrypt.util';
 import { OtpUtil } from '../../../shared/utils/otp.util';
 import { DateUtil } from '../../../shared/utils/date.util';
 import { RoleService } from '../../role/services/role.service';
+import { CommonUtil } from '../../../shared/utils/common.util';
 @Injectable()
 export class AuthService {
   constructor(
@@ -25,6 +26,7 @@ export class AuthService {
     private readonly bcryptUtil: BcryptUtil,
     private readonly otpUtil: OtpUtil,
     private readonly dateUtil: DateUtil,
+    private readonly commonUtil: CommonUtil,
   ) {}
 
   doSignUp = async (requestBody: EmailSignUpDto) => {
@@ -48,17 +50,21 @@ export class AuthService {
       const otp = this.otpUtil.generateOtp();
       const otpDate = this.dateUtil.getEpochFromDate(new Date());
       const role = await this.roleService.findByName('User');
-      const prepareSaveUser = {
+      const prepareSaveUser: any = {
         firstName,
         lastName,
         email,
         password: hashedPassword,
         otp,
         otpDate,
+        userName: this.commonUtil.generateUsername(firstName, lastName, email),
       };
-      // await this.userService.create(prepareSaveUser);
+      const savedUser = await this.userService.create(
+        prepareSaveUser,
+        transaction,
+      );
       await transaction.commit();
-      return prepareSaveUser;
+      return savedUser;
     } catch (error) {
       this.loggerService.error('Transaction failed', error);
       await transaction.rollback();

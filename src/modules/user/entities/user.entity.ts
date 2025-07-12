@@ -4,6 +4,8 @@ import {
   Model,
   Table,
   BeforeCreate,
+  PrimaryKey,
+  AllowNull,
 } from 'sequelize-typescript';
 import { LoginType } from 'src/common/enums';
 import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
@@ -18,63 +20,62 @@ import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
     },
   },
 })
+// NOTE DO NOT use @AllowNull(false) for id field it will not called Hooks.
 export class User extends Model<User> {
+  @PrimaryKey
   @Column({
     field: 'id',
     type: DataType.STRING(255),
-    primaryKey: true,
-    allowNull: false,
-    unique: true,
   })
-  declare userId: string;
+  declare id: string;
 
+  @AllowNull(false)
   @Column({
     field: 'first_name',
     type: DataType.STRING(150),
-    allowNull: false,
   })
   declare firstName: string;
 
+  @AllowNull(false)
   @Column({
     field: 'last_name',
     type: DataType.STRING(100),
-    allowNull: false,
   })
   declare lastName: string;
 
+  @AllowNull(false)
   @Column({
     field: 'user_name',
     type: DataType.STRING(50),
-    allowNull: false,
   })
   declare userName: string;
 
+  @AllowNull(false)
   @Column({
     field: 'email',
     type: DataType.STRING(150),
     unique: true,
-    allowNull: false,
   })
   declare email: string;
 
+  @AllowNull(true)
   @Column({
     field: 'phone_code',
     type: DataType.STRING(5),
-    allowNull: true,
   })
   declare phoneCode: string;
 
+  @AllowNull(true)
   @Column({
     field: 'phone_number',
     type: DataType.STRING(15),
-    allowNull: true,
   })
   declare phoneNumber: string;
 
+  @AllowNull(false)
   @Column({
     field: 'password',
     type: DataType.STRING(255),
-    allowNull: false,
   })
   declare password: string;
 
@@ -85,27 +86,27 @@ export class User extends Model<User> {
   })
   declare profileImage: string;
 
+  @AllowNull(false)
   @Column({
     field: 'login_type',
     type: DataType.ENUM(...Object.values(LoginType)),
-    allowNull: false,
     defaultValue: LoginType.EMAIL,
     comment:
       'type of logins: ("EMAIL", "PHONE", "APPLE", "GOOGLE", "FACEBOOK")',
   })
   declare loginType: LoginType;
 
+  @AllowNull(true)
   @Column({
     field: 'social_id',
     type: DataType.STRING(255),
-    allowNull: true,
   })
   declare socialId: string;
 
+  @AllowNull(true)
   @Column({
     field: 'otp',
     type: DataType.STRING(10),
-    allowNull: true,
   })
   declare otp: string;
 
@@ -116,10 +117,10 @@ export class User extends Model<User> {
   })
   declare isVerified: boolean;
 
+  @AllowNull(true)
   @Column({
     field: 'otp_date',
     type: DataType.DATE,
-    allowNull: true,
   })
   declare otpDate: Date;
 
@@ -139,15 +140,17 @@ export class User extends Model<User> {
   })
   declare isTermsAgree: boolean;
 
+  @AllowNull(true)
   @Column({
     field: 'deleted_at',
     type: DataType.DATE,
-    allowNull: true,
   })
   declare deletedAt: Date;
 
   @BeforeCreate
   static generateId(instance: User) {
-    instance.userId = IdGeneratorUtil.generateId('USR');
+    if (!instance.id) {
+      instance.id = IdGeneratorUtil.generateId('USR');
+    }
   }
 }

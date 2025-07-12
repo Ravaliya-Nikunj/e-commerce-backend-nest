@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../entities/user.entity';
+import { Transaction } from 'sequelize';
 import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
@@ -9,11 +10,15 @@ export class UserRepository {
     private userModel: typeof User,
   ) {}
 
-  findAll = (): Promise<User[]> => {
-    return this.userModel.findAll();
+  async create(userData: User, transaction?: Transaction): Promise<User> {
+    const user = await this.userModel.create(userData, { transaction });
+    return user;
+  }
+  findAll = async (): Promise<User[]> => {
+    return await this.userModel.findAll();
   };
 
-  findByEmail = (email: string): Promise<User | null> => {
-    return this.userModel.findOne({ where: { email } });
+  findByEmail = async (email: string): Promise<User | null> => {
+    return await this.userModel.findOne({ where: { email } });
   };
 }
