@@ -5,7 +5,7 @@ import {
   Table,
   BeforeCreate,
 } from 'sequelize-typescript';
-import { IdGeneratorUtil } from 'src/utils/id-generator.util';
+import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
 
 @Table({
   tableName: 'roles',

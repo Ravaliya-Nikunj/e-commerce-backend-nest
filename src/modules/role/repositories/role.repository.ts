@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Role } from '../entities/role.entity';
 import { InjectModel } from '@nestjs/sequelize';
 @Injectable()
@@ -8,7 +8,15 @@ export class RoleRepository {
     private roleModel: typeof Role,
   ) {}
 
-  async findAll(): Promise<Role[]> {
+  findAll = (): Promise<Role[]> => {
     return this.roleModel.findAll();
-  }
+  };
+
+  findByName = async (name: string): Promise<Role> => {
+    const role = await this.roleModel.findOne({ where: { name } });
+    if (!role) {
+      throw new BadRequestException('Role not found');
+    }
+    return role;
+  };
 }

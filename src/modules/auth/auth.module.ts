@@ -11,11 +11,15 @@ import { RoleService } from '../role/services/role.service';
 import { UserRoleService } from '../user-roles/services/user-role.service';
 import { RoleRepository } from '../role/repositories/role.repository';
 import { UserRoleRepository } from '../user-roles/repositories/user-role.repository';
-import { LoggingModule } from '../../common/logging/logging.module';
-import { LoggingService } from '../../common/logging/logging.service';
+import { LoggingModule } from '../../logging/logging.module';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([User, Role, UserRole]), LoggingModule],
+  imports: [
+    SequelizeModule.forFeature([User, Role, UserRole]),
+    LoggingModule,
+    SharedModule,
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,

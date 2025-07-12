@@ -6,7 +6,7 @@ import {
   BeforeCreate,
 } from 'sequelize-typescript';
 import { LoginType } from 'src/common/enums';
-import { IdGeneratorUtil } from 'src/utils/id-generator.util';
+import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
 
 @Table({
   tableName: 'users',

@@ -6,7 +6,7 @@ import {
   Model,
   BeforeCreate,
 } from 'sequelize-typescript';
-import { IdGeneratorUtil } from 'src/utils/id-generator.util';
+import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
 import { User } from 'src/modules/user/entities/user.entity';
 import { Role } from 'src/modules/role/entities/role.entity';
 

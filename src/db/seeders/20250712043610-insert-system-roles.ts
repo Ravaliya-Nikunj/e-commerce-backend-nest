@@ -1,6 +1,6 @@
 import { QueryInterface } from 'sequelize';
 import { systemRoles } from '../../common/constants';
-import { IdGeneratorUtil } from '../../utils/id-generator.util';
+import { IdGeneratorUtil } from '../../helpers/id-generator.util';
 
 export default {
   async up(queryInterface: QueryInterface) {

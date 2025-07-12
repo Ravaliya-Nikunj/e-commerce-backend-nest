@@ -1,5 +1,5 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { LoggingModule } from '../../common/logging/logging.module';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { LoggingModule } from '../../logging/logging.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config';
@@ -45,6 +45,8 @@ import { RequestLoggerMiddleware } from '../../common/middleware/request-logger.
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+    consumer
+      .apply(RequestLoggerMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

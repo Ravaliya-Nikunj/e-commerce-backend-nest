@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/base/app.module';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionInterceptor } from './common/interceptors/http-exception-interceptor';
-import { LoggingService } from './common/logging/logging.service';
+import { LoggingService } from './logging/logging.service';
 import {
   BadRequestException,
   ValidationPipe,

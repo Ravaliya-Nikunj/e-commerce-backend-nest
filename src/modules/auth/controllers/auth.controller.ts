@@ -1,21 +1,18 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { EmailSignUpDto } from '../dtos/email-sign-up.dto';
-import { LoggingService } from '../../../common/logging/logging.service';
+import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
 
 @Controller({
-  path: 'auth/user',
+  path: 'auth',
   version: '1',
 })
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly loggerService: LoggingService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Post('sign-up')
+  @Post('/user/sign-up')
   async signUp(@Body() emailSignUpDto: EmailSignUpDto) {
     const result = await this.authService.doSignUp(emailSignUpDto);
-    return result;
+    return ApiResponseDto.success(result, 'User signed up successfully');
   }
 }
