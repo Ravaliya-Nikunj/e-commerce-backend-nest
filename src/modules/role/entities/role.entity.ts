@@ -10,6 +10,7 @@ import { IdGeneratorUtil } from 'src/utils/id-generator.util';
 @Table({
   tableName: 'roles',
   timestamps: true,
+  underscored: true,
 })
 export class Role extends Model<Role> {
   @Column({

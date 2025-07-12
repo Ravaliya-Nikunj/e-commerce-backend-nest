@@ -11,6 +11,7 @@ import { IdGeneratorUtil } from 'src/utils/id-generator.util';
 @Table({
   tableName: 'users',
   timestamps: true,
+  underscored: true,
   defaultScope: {
     where: {
       is_deleted: false,
@@ -129,6 +130,14 @@ export class User extends Model<User> {
     comment: '0. account not deleted / 1. account deleted',
   })
   declare isDeleted: boolean;
+
+  @Column({
+    field: 'is_terms_agree',
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+    comment: '0. not agree / 1. agree',
+  })
+  declare isTermsAgree: boolean;
 
   @Column({
     field: 'deleted_at',

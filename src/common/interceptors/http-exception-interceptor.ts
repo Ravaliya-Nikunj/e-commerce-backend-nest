@@ -32,15 +32,40 @@ export class HttpExceptionInterceptor implements ExceptionFilter {
       // Handle NestJS HTTP exceptions
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
+
       if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
         // For validation errors, preserve entire response (messages, validation errors, etc.)
         extraPayload = exceptionResponse as Record<string, any>;
+        message = extraPayload.message || 'Validation error';
+        error = exception.name;
+
+        // Log validation errors with details
+        if (status === HttpStatus.BAD_REQUEST) {
+          this.logger.warn(
+            `Validation Error (${status}): ${request.method} ${request.url} - ${message}`,
+            {
+              errors: extraPayload.errors || extraPayload.message,
+              body: request.body,
+              query: request.query,
+              params: request.params,
+            },
+          );
+        } else {
+          this.logger.error(`HTTP ${status} Error: ${message}`, {
+            error: exception.stack,
+            response: extraPayload,
+          });
+        }
       } else {
         message = String(exceptionResponse);
         error = exception.name;
+        this.logger.error(`HTTP ${status} Error: ${message}`, {
+          error: exception.stack,
+          body: request.body,
+          query: request.query,
+          params: request.params,
+        });
       }
-
-      this.logger.error(`HTTP Exception: ${message}`, exception.stack);
     } else if (
       exception &&
       typeof exception === 'object' &&
@@ -67,10 +92,21 @@ export class HttpExceptionInterceptor implements ExceptionFilter {
       message = exception.message || 'Unknown error';
       error = exception.name || 'Error';
 
-      this.logger.error(`Error: ${message}`, exception.stack);
+      this.logger.error(`Unhandled Error (${status}): ${message}`, {
+        error: exception.stack,
+        body: request.body,
+        query: request.query,
+        params: request.params,
+      });
     } else {
       // Handle any other type of exception
-      this.logger.error('Unknown exception occurred', String(exception));
+      this.logger.error(`Unknown Exception (${status}): ${message}`, {
+        error: String(exception),
+        body: request.body,
+        query: request.query,
+        params: request.params,
+        stack: new Error('Unknown exception stack').stack,
+      });
     }
 
     // Unified final response

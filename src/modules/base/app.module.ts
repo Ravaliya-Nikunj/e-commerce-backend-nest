@@ -4,6 +4,10 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
+import { UserRoleModule } from '../user-roles/user-role.module';
+import { RoleModule } from '../role/role.module';
+import { AuthModule } from '../auth/auth.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,6 +35,9 @@ import { UserModule } from '../user/user.module';
     }),
     LoggingModule,
     UserModule,
+    RoleModule,
+    UserRoleModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

@@ -63,6 +63,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
+      is_terms_agree: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+        comment: '0. not agree / 1. agree',
+      },
       is_deleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
