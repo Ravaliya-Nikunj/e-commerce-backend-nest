@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { LoggingModule } from '../../common/logging/logging.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
@@ -7,6 +7,7 @@ import { UserModule } from '../user/user.module';
 import { UserRoleModule } from '../user-roles/user-role.module';
 import { RoleModule } from '../role/role.module';
 import { AuthModule } from '../auth/auth.module';
+import { RequestLoggerMiddleware } from '../../common/middleware/request-logger.middleware';
 
 @Module({
   imports: [
@@ -42,4 +43,8 @@ import { AuthModule } from '../auth/auth.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}

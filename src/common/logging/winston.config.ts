@@ -1,5 +1,6 @@
 import { format, transports, createLogger } from 'winston';
 import * as moment from 'moment';
+import { sanitizeObject } from './sanitize.util'; // <- new uti
 
 const appName = 'E-Commerce';
 
@@ -13,7 +14,8 @@ const customFormat = format.printf(
     delete metaWithoutLevel.level;
 
     if (Object.keys(metaWithoutLevel.metadata).length > 0) {
-      logMessage += `\n${JSON.stringify(metaWithoutLevel.metadata, null, 2)}`;
+      const sanitizedMeta = sanitizeObject(metaWithoutLevel.metadata);
+      logMessage += `\n${JSON.stringify(sanitizedMeta, null, 2)}`;
     }
 
     return logMessage;

@@ -6,7 +6,24 @@ import {
   MaxLength,
   Matches,
   IsBoolean,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
+
+@ValidatorConstraint({ name: 'isPasswordMatching', async: false })
+class IsPasswordMatchingConstraint implements ValidatorConstraintInterface {
+  validate(value: any, args: ValidationArguments) {
+    const [relatedPropertyName] = args.constraints;
+    const relatedValue = (args.object as any)[relatedPropertyName];
+    return value === relatedValue;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return 'Password and confirm password do not match';
+  }
+}
 
 export class EmailSignUpDto {
   @IsString()
@@ -47,6 +64,13 @@ export class EmailSignUpDto {
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })
   password: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Confirm Password is required' })
+  @Validate(IsPasswordMatchingConstraint, ['password'], {
+    message: 'Password and confirm password do not match',
+  })
+  confirmPassword: string;
 
   @IsBoolean({ message: 'You must agree to the terms and conditions' })
   @IsNotEmpty({ message: 'You must agree to the terms and conditions' })

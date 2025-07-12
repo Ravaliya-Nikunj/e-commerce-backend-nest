@@ -15,6 +15,8 @@ const bootstrap = async () => {
   });
   const logger = app.get(LoggingService);
   app.useLogger(logger);
+
+  // Create and apply request logger middleware
   // Retrieve configuration values via ConfigService (loaded globally in AppModule)
   const configService = app.get(ConfigService);
   const APP_PORT = configService.get<number>('APP_PORT', 3000);

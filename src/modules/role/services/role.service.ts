@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+import { RoleRepository } from '../repositories/role.repository';
 import { Role } from '../entities/role.entity';
 
 @Injectable()
 export class RoleService {
-  constructor(
-    @InjectModel(Role)
-    private roleModel: typeof Role,
-  ) {}
+  constructor(private readonly roleRepository: RoleRepository) {}
 
   async findAll(): Promise<Role[]> {
-    return this.roleModel.findAll();
+    return this.roleRepository.findAll();
   }
 }
