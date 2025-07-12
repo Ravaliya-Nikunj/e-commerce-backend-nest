@@ -3,7 +3,7 @@ import { AppModule } from './modules/base/app.module';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionInterceptor } from './common/interceptors/http-exception-interceptor';
 import { LoggingService } from './common/logging/logging.service';
-import { winstonConfig } from './common/logging/winston.config';
+import { systemRoles, systemRolesMap } from './common/constants/roles.const';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
