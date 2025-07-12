@@ -32,7 +32,6 @@ export class HttpExceptionInterceptor implements ExceptionFilter {
       // Handle NestJS HTTP exceptions
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
-
       if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
         // For validation errors, preserve entire response (messages, validation errors, etc.)
         extraPayload = exceptionResponse as Record<string, any>;
@@ -45,9 +44,6 @@ export class HttpExceptionInterceptor implements ExceptionFilter {
             `Validation Error (${status}): ${request.method} ${request.url} - ${message}`,
             {
               errors: extraPayload.errors || extraPayload.message,
-              body: request.body,
-              query: request.query,
-              params: request.params,
             },
           );
         } else {
@@ -61,9 +57,6 @@ export class HttpExceptionInterceptor implements ExceptionFilter {
         error = exception.name;
         this.logger.error(`HTTP ${status} Error: ${message}`, {
           error: exception.stack,
-          body: request.body,
-          query: request.query,
-          params: request.params,
         });
       }
     } else if (
@@ -94,17 +87,11 @@ export class HttpExceptionInterceptor implements ExceptionFilter {
 
       this.logger.error(`Unhandled Error (${status}): ${message}`, {
         error: exception.stack,
-        body: request.body,
-        query: request.query,
-        params: request.params,
       });
     } else {
       // Handle any other type of exception
       this.logger.error(`Unknown Exception (${status}): ${message}`, {
         error: String(exception),
-        body: request.body,
-        query: request.query,
-        params: request.params,
         stack: new Error('Unknown exception stack').stack,
       });
     }

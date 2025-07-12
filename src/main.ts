@@ -3,7 +3,11 @@ import { AppModule } from './modules/base/app.module';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionInterceptor } from './common/interceptors/http-exception-interceptor';
 import { LoggingService } from './common/logging/logging.service';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  BadRequestException,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule, {
@@ -30,7 +34,32 @@ const bootstrap = async () => {
     defaultVersion: API_DEFAULT_VERSION,
   });
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      exceptionFactory: (errors) => {
+        const formattedErrors = errors.reduce((acc, error) => {
+          const field = error.property;
+          const messages = Object.values(error.constraints || {});
+
+          if (messages.length > 0) {
+            acc[field] = messages;
+          }
+
+          return acc;
+        }, {});
+
+        const errorResponse = {
+          statusCode: 400,
+          message: 'Validation failed',
+          errors: formattedErrors,
+        };
+
+        return new BadRequestException(errorResponse);
+      },
+    }),
+  );
 
   app.useGlobalFilters(new HttpExceptionInterceptor(logger));
 
