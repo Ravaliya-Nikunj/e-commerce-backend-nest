@@ -52,7 +52,7 @@ export class User extends Model<User> {
     field: 'email',
     type: DataType.STRING(150),
     unique: true,
-    allowNull: true,
+    allowNull: false,
   })
   declare email: string;
 
