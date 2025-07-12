@@ -1,8 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiResponseDto } from '../../common/dtos/api-response.dto';
-import { UserService } from './user.service';
+import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
+import { UserService } from '../services/user.service';
 
-@Controller('users')
+@Controller({
+  path: 'users',
+  version: '1',
+})
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
