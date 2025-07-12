@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../entities/user.entity';
 import { UserRepository } from '../repositories/user.repository';
+import { UserDto } from '../dtos/user.dto';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -8,8 +10,13 @@ export class UserService {
   create = async (user: User, transaction?: any): Promise<User> => {
     return await this.userRepository.create(user, transaction);
   };
-  findAll = async (): Promise<User[]> => {
-    return await this.userRepository.findAll();
+  findAll = async (): Promise<UserDto[]> => {
+    const users = await this.userRepository.findAll();
+    return users.map((user) =>
+      plainToClass(UserDto, user, {
+        excludeExtraneousValues: true,
+      }),
+    );
   };
 
   findByEmail = async (email: string): Promise<User | null> => {

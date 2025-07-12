@@ -5,6 +5,7 @@ import {
   ForeignKey,
   Model,
   BeforeCreate,
+  PrimaryKey,
 } from 'sequelize-typescript';
 import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
 import { User } from 'src/modules/user/entities/user.entity';
@@ -13,6 +14,7 @@ import { Role } from 'src/modules/role/entities/role.entity';
 @Table({
   tableName: 'user_roles',
   timestamps: true,
+  underscored: true,
   indexes: [
     {
       unique: true,
@@ -21,12 +23,10 @@ import { Role } from 'src/modules/role/entities/role.entity';
   ],
 })
 export class UserRole extends Model<UserRole> {
+  @PrimaryKey
   @Column({
     field: 'id',
     type: DataType.STRING(255),
-    primaryKey: true,
-    allowNull: false,
-    unique: true,
   })
   declare id: string;
 

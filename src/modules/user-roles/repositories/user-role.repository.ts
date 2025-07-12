@@ -8,7 +8,11 @@ export class UserRoleRepository {
     private userRoleModel: typeof UserRole,
   ) {}
 
-  async findAll(): Promise<UserRole[]> {
-    return this.userRoleModel.findAll();
-  }
+  create = async (userRole: UserRole, transaction?: any): Promise<UserRole> => {
+    return await this.userRoleModel.create(userRole, { transaction });
+  };
+
+  findAll = async (): Promise<UserRole[]> => {
+    return await this.userRoleModel.findAll();
+  };
 }

@@ -6,7 +6,10 @@ import { UserRoleRepository } from '../repositories/user-role.repository';
 export class UserRoleService {
   constructor(private readonly userRoleRepository: UserRoleRepository) {}
 
-  async findAll(): Promise<UserRole[]> {
-    return this.userRoleRepository.findAll();
-  }
+  create = async (userRole: UserRole, transaction?: any): Promise<UserRole> => {
+    return await this.userRoleRepository.create(userRole, transaction);
+  };
+  findAll = async (): Promise<UserRole[]> => {
+    return await this.userRoleRepository.findAll();
+  };
 }

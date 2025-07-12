@@ -15,11 +15,13 @@ import { OtpUtil } from '../../../shared/utils/otp.util';
 import { DateUtil } from '../../../shared/utils/date.util';
 import { RoleService } from '../../role/services/role.service';
 import { CommonUtil } from '../../../shared/utils/common.util';
+import { UserRoleService } from '../../user-roles/services/user-role.service';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly roleService: RoleService,
+    private readonly userRoleService: UserRoleService,
     private readonly sequelize: Sequelize,
     private readonly loggerService: LoggingService,
     private readonly cryptoUtil: CryptoUtil,
@@ -63,14 +65,19 @@ export class AuthService {
         prepareSaveUser,
         transaction,
       );
+      const prepareSaveUserRole: any = {
+        userId: savedUser.id,
+        roleId: role.id,
+      };
+      await this.userRoleService.create(prepareSaveUserRole, transaction);
+
       await transaction.commit();
-      return savedUser;
+
+      return { email: savedUser.email };
     } catch (error) {
       this.loggerService.error('Transaction failed', error);
       await transaction.rollback();
-      throw new InternalServerErrorException(
-        error.message || 'Internal server error',
-      );
+      throw error;
     }
   };
 }

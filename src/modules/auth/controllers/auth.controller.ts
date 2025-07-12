@@ -13,6 +13,9 @@ export class AuthController {
   @Post('/user/sign-up')
   async signUp(@Body() emailSignUpDto: EmailSignUpDto) {
     const result = await this.authService.doSignUp(emailSignUpDto);
-    return ApiResponseDto.success(result, 'User signed up successfully');
+    return ApiResponseDto.success(
+      result,
+      'OTP sent successfully! Check your inbox for the verification code.',
+    );
   }
 }
