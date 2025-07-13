@@ -4,8 +4,8 @@ import { UserService } from '../services/user.service';
 import { UserDto } from '../dtos/user.dto';
 import { AuthGuard } from '../../../common/guards/auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { RoleType } from 'src/common/enums';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { RoleType } from '../../../common/enums';
 
 @Controller({
   path: 'users',

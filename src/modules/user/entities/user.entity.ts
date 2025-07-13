@@ -10,7 +10,7 @@ import {
 } from 'sequelize-typescript';
 import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
 import { LoginType } from '../../../common/enums';
-import { UserRole } from 'src/modules/user-roles/entities/user-role.entity';
+import { UserRole } from '../../user-roles/entities/user-role.entity';
 
 @Table({
   tableName: 'users',

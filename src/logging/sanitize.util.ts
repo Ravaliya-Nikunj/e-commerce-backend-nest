@@ -1,4 +1,3 @@
-// src/common/logging/sanitize.util.ts
 const SENSITIVE_KEYS = [
   'password',
   'repeatPassword',

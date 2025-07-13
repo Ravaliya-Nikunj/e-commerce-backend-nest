@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Role } from '../entities/role.entity';
 import { InjectModel } from '@nestjs/sequelize';
-import { UserRole } from 'src/modules/user-roles/entities/user-role.entity';
+import { UserRole } from '../../user-roles/entities/user-role.entity';
 @Injectable()
 export class RoleRepository {
   constructor(

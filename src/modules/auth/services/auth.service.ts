@@ -18,9 +18,9 @@ import { CommonUtil } from '../../../shared/utils/common.util';
 import { UserRoleService } from '../../user-roles/services/user-role.service';
 import { SignInDto } from '../../../common/dtos/sign-in.dto';
 import { JwtUtil } from '../../../shared/utils/jwt.util';
-import { UserDto } from 'src/modules/user/dtos/user.dto';
+import { UserDto } from '../../user/dtos/user.dto';
 import { plainToClass } from 'class-transformer';
-import { RoleType } from 'src/common/enums/role.enum';
+import { RoleType } from '../../../common/enums';
 @Injectable()
 export class AuthService {
   constructor(

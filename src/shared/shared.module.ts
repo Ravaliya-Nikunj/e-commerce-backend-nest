@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { CryptoUtil } from 'src/shared/utils/crypto.util';
+import { CryptoUtil } from './utils/crypto.util';
 import { BcryptUtil } from './utils/bcrypt.util';
 import { OtpUtil } from './utils/otp.util';
 import { DateUtil } from './utils/date.util';

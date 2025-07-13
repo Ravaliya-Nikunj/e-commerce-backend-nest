@@ -3,8 +3,8 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { SignInDto } from '../../../common/dtos/sign-in.dto';
 import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
-import { TokenResponseDto } from 'src/common/dtos/token-response.dto';
-import { Public } from 'src/common/decorators/public.decorator';
+import { Public } from '../../../common/decorators/public.decorator';
+import { TokenResponseDto } from '../../../common/dtos/token-response.dto';
 
 @ApiTags('Admin Authentication')
 @Controller({ path: 'auth/admin', version: '1' })
