@@ -7,8 +7,8 @@ import {
   PrimaryKey,
   AllowNull,
 } from 'sequelize-typescript';
-import { LoginType } from 'src/common/enums';
 import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
+import { LoginType } from '../../../common/enums';
 
 @Table({
   tableName: 'users',

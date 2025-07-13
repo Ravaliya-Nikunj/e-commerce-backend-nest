@@ -6,10 +6,11 @@ import {
   Model,
   BeforeCreate,
   PrimaryKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
-import { User } from 'src/modules/user/entities/user.entity';
-import { Role } from 'src/modules/role/entities/role.entity';
+import { User } from '../../../modules/user/entities/user.entity';
+import { Role } from '../../../modules/role/entities/role.entity';
 
 @Table({
   tableName: 'user_roles',
@@ -38,6 +39,9 @@ export class UserRole extends Model<UserRole> {
     comment: 'id of roles table',
   })
   declare roleId: string;
+
+  @BelongsTo(() => Role, 'roleId')
+  role: Role;
 
   @ForeignKey(() => User)
   @Column({

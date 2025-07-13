@@ -19,7 +19,7 @@ export class UserService {
     );
   };
 
-  findByEmail = async (email: string): Promise<User | null> => {
+  async findByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findByEmail(email);
-  };
+  }
 }

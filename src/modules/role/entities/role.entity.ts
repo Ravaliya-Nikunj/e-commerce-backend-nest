@@ -4,8 +4,10 @@ import {
   Model,
   Table,
   BeforeCreate,
+  HasOne,
 } from 'sequelize-typescript';
 import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
+import { UserRole } from '../../../modules/user-roles/entities/user-role.entity';
 
 @Table({
   tableName: 'roles',
@@ -45,6 +47,12 @@ export class Role extends Model<Role> {
     },
   })
   declare displayName: string;
+
+  @HasOne(() => UserRole, {
+    foreignKey: 'roleId',
+    as: 'userRole', // This matches the alias used in the query
+  })
+  userRole: UserRole;
 
   @BeforeCreate
   static generateId(instance: Role) {

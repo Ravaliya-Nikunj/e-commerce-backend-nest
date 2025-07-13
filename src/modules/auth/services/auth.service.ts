@@ -16,6 +16,11 @@ import { DateUtil } from '../../../shared/utils/date.util';
 import { RoleService } from '../../role/services/role.service';
 import { CommonUtil } from '../../../shared/utils/common.util';
 import { UserRoleService } from '../../user-roles/services/user-role.service';
+import { SignInDto } from '../dtos/sign-in.dto';
+import { JwtUtil } from '../../../shared/utils/jwt.util';
+import { UserDto } from 'src/modules/user/dtos/user.dto';
+import { plainToClass } from 'class-transformer';
+import { RoleType } from 'src/common/enums/role.enum';
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,14 +34,26 @@ export class AuthService {
     private readonly otpUtil: OtpUtil,
     private readonly dateUtil: DateUtil,
     private readonly commonUtil: CommonUtil,
+    private readonly jwtUtil: JwtUtil,
   ) {}
 
   doSignUp = async (requestBody: EmailSignUpDto) => {
     const transaction = await this.sequelize.transaction();
     this.loggerService.log('Transaction started');
     try {
-      const { firstName, lastName, email, password, confirmPassword } =
-        requestBody;
+      const {
+        firstName,
+        lastName,
+        email,
+        password,
+        confirmPassword,
+        isTermsAgree,
+      } = requestBody;
+      if (!isTermsAgree) {
+        throw new BadRequestException(
+          'You must agree to the terms and conditions',
+        );
+      }
       const decodedPassword = this.cryptoUtil.getDecryptionString(password);
       const decodedConfirmPassword =
         this.cryptoUtil.getDecryptionString(confirmPassword);
@@ -80,4 +97,54 @@ export class AuthService {
       throw error;
     }
   };
+
+  async signIn(signInDto: SignInDto) {
+    const { email, password } = signInDto;
+
+    // Find user by email
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Invalid email or password');
+    }
+
+    // Check if user is active
+    if (user.isDeleted) {
+      throw new BadRequestException('Your account has been deactivated');
+    }
+
+    // Verify password
+    const isPasswordValid = await this.bcryptUtil.bcryptCompare(
+      this.cryptoUtil.getDecryptionString(password),
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid email or password');
+    }
+    const roleDetails = await this.roleService.getRoleByUserId(user.id);
+    if (roleDetails.name !== RoleType.USER) {
+      throw new BadRequestException('Invalid email or password');
+    }
+
+    // Check if email is verified
+    if (!user.isVerified) {
+      this.loggerService.log(
+        'Email is not verified send new otp to user and return a response',
+      );
+    }
+    const prepareJwtData = {
+      sub: user.id,
+      email: user.email,
+      role: roleDetails.name,
+      roleId: roleDetails.id,
+    };
+    const tokens = this.jwtUtil.generateToken(prepareJwtData);
+    const userDto = plainToClass(UserDto, user, {
+      excludeExtraneousValues: true,
+    });
+    return {
+      user: userDto,
+      tokens,
+    };
+  }
 }

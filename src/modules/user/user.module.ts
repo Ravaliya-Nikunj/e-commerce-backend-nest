@@ -4,6 +4,7 @@ import { User } from './entities/user.entity';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
 import { UserRepository } from './repositories/user.repository';
+import { RoleRepository } from '../role/repositories/role.repository';
 
 @Module({
   imports: [SequelizeModule.forFeature([User])],

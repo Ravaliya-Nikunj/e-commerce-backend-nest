@@ -6,11 +6,15 @@ import { Role } from '../entities/role.entity';
 export class RoleService {
   constructor(private readonly roleRepository: RoleRepository) {}
 
-  findAll = (): Promise<Role[]> => {
-    return this.roleRepository.findAll();
+  findAll = async (): Promise<Role[]> => {
+    return await this.roleRepository.findAll();
   };
 
-  findByName = (name: string): Promise<Role> => {
-    return this.roleRepository.findByName(name);
+  findByName = async (name: string): Promise<Role> => {
+    return await this.roleRepository.findByName(name);
+  };
+
+  getRoleByUserId = async (userId: string): Promise<Role> => {
+    return await this.roleRepository.getRoleByUserId(userId);
   };
 }

@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { EmailSignUpDto } from '../dtos/email-sign-up.dto';
+import { SignInDto } from '../dtos/sign-in.dto';
 import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
 
 @Controller({
@@ -17,5 +18,11 @@ export class AuthController {
       result,
       'OTP sent successfully! Check your inbox for the verification code.',
     );
+  }
+
+  @Post('/user/sign-in')
+  async signIn(@Body() signInDto: SignInDto) {
+    const result = await this.authService.signIn(signInDto);
+    return ApiResponseDto.success(result, 'Successfully signed in');
   }
 }
