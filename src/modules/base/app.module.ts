@@ -8,6 +8,7 @@ import { UserRoleModule } from '../user-roles/user-role.module';
 import { RoleModule } from '../role/role.module';
 import { AuthModule } from '../auth/auth.module';
 import { RequestLoggerMiddleware } from '../../common/middleware/request-logger.middleware';
+import { AdminModule } from '../admin/admin.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { RequestLoggerMiddleware } from '../../common/middleware/request-logger.
       },
     }),
     LoggingModule,
+    AdminModule,
     UserModule,
     RoleModule,
     UserRoleModule,

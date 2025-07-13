@@ -16,7 +16,7 @@ import { DateUtil } from '../../../shared/utils/date.util';
 import { RoleService } from '../../role/services/role.service';
 import { CommonUtil } from '../../../shared/utils/common.util';
 import { UserRoleService } from '../../user-roles/services/user-role.service';
-import { SignInDto } from '../dtos/sign-in.dto';
+import { SignInDto } from '../../../common/dtos/sign-in.dto';
 import { JwtUtil } from '../../../shared/utils/jwt.util';
 import { UserDto } from 'src/modules/user/dtos/user.dto';
 import { plainToClass } from 'class-transformer';
