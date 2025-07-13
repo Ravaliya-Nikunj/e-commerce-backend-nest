@@ -29,7 +29,7 @@ export class RolesGuard implements CanActivate {
 
     if (!user || !requiredRoles.includes(user.role)) {
       this.loggerService.warn('Access denied: insufficient role');
-      throw new ForbiddenException('Access denied: insufficient role');
+      throw new ForbiddenException('Access denied');
     }
     this.loggerService.log('Access granted');
     return true;

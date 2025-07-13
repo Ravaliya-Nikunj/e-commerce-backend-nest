@@ -11,10 +11,9 @@ import { RoleService } from '../role/services/role.service';
 import { UserRoleService } from '../user-roles/services/user-role.service';
 import { RoleRepository } from '../role/repositories/role.repository';
 import { UserRoleRepository } from '../user-roles/repositories/user-role.repository';
-import { LoggingModule } from '../../logging/logging.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([User, Role, UserRole]), LoggingModule],
+  imports: [SequelizeModule.forFeature([User, Role, UserRole])],
   controllers: [AuthController],
   providers: [
     AuthService,

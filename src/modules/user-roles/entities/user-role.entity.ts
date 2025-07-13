@@ -40,7 +40,10 @@ export class UserRole extends Model<UserRole> {
   })
   declare roleId: string;
 
-  @BelongsTo(() => Role, 'roleId')
+  @BelongsTo(() => Role, {
+    foreignKey: 'roleId',
+    as: 'role', // This matches the alias used in the query
+  })
   role: Role;
 
   @ForeignKey(() => User)
@@ -51,6 +54,12 @@ export class UserRole extends Model<UserRole> {
     comment: 'id of users table',
   })
   declare userId: string;
+
+  @BelongsTo(() => User, {
+    foreignKey: 'userId',
+    as: 'user',
+  })
+  user: User;
 
   @BeforeCreate
   static generateId(instance: UserRole) {

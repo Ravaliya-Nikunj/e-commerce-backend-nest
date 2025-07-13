@@ -3,7 +3,8 @@ import { AuthService } from '../services/auth.service';
 import { EmailSignUpDto } from '../dtos/email-sign-up.dto';
 import { SignInDto } from '../../../common/dtos/sign-in.dto';
 import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
-import { TokenResponseDto } from 'src/common/dtos/token-response.dto';
+import { TokenResponseDto } from '../../../common/dtos/token-response.dto';
+import { Public } from '../../../common/decorators/public.decorator';
 
 @Controller({
   path: 'auth',
@@ -12,6 +13,7 @@ import { TokenResponseDto } from 'src/common/dtos/token-response.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('/user/sign-up')
   async signUp(@Body() emailSignUpDto: EmailSignUpDto) {
     const result = await this.authService.doSignUp(emailSignUpDto);
@@ -21,6 +23,7 @@ export class AuthController {
     );
   }
 
+  @Public()
   @Post('/user/sign-in')
   @HttpCode(HttpStatus.OK)
   async signIn(

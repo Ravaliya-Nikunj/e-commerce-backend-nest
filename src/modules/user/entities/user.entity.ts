@@ -6,9 +6,11 @@ import {
   BeforeCreate,
   PrimaryKey,
   AllowNull,
+  HasOne,
 } from 'sequelize-typescript';
 import { IdGeneratorUtil } from '../../../helpers/id-generator.util';
 import { LoginType } from '../../../common/enums';
+import { UserRole } from 'src/modules/user-roles/entities/user-role.entity';
 
 @Table({
   tableName: 'users',
@@ -146,6 +148,12 @@ export class User extends Model<User> {
     type: DataType.DATE,
   })
   declare deletedAt: Date;
+
+  @HasOne(() => UserRole, {
+    foreignKey: 'userId',
+    as: 'userRole', // This matches the alias used in the query
+  })
+  userRole: UserRole;
 
   @BeforeCreate
   static generateId(instance: User) {

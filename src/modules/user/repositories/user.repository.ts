@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '../entities/user.entity';
 import { Transaction } from 'sequelize';
 import { InjectModel } from '@nestjs/sequelize';
-import { Role } from 'src/modules/role/entities/role.entity';
+import { Op } from 'sequelize';
+import { User } from '../entities/user.entity';
+import { Role } from '../../../modules/role/entities/role.entity';
+import { UserRole } from '../../../modules/user-roles/entities/user-role.entity';
+import { RoleType } from '../../../common/enums';
 
 @Injectable()
 export class UserRepository {
@@ -15,9 +18,26 @@ export class UserRepository {
     const user = await this.userModel.create(userData, { transaction });
     return user;
   }
-  findAll = async (): Promise<User[]> => {
-    return await this.userModel.findAll();
-  };
+  async findAll(excludeAdmins: boolean = true): Promise<User[]> {
+    const options = {
+      include: [
+        {
+          model: UserRole,
+          as: 'userRole',
+          required: excludeAdmins,
+          include: [
+            {
+              model: Role,
+              as: 'role',
+              where: { name: { [Op.ne]: RoleType.ADMIN } },
+            },
+          ],
+        },
+      ],
+    };
+
+    return await this.userModel.findAll(options);
+  }
 
   async findByEmail(email: string): Promise<User | null> {
     return await this.userModel.findOne({
