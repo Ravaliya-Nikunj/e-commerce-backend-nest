@@ -11,8 +11,4 @@ export class UserRoleRepository {
   create = async (userRole: UserRole, transaction?: any): Promise<UserRole> => {
     return await this.userRoleModel.create(userRole, { transaction });
   };
-
-  findAll = async (): Promise<UserRole[]> => {
-    return await this.userRoleModel.findAll();
-  };
 }

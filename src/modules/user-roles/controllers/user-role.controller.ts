@@ -1,5 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
+import { Controller } from '@nestjs/common';
 import { UserRoleService } from '../services/user-role.service';
 
 @Controller({
@@ -8,13 +7,4 @@ import { UserRoleService } from '../services/user-role.service';
 })
 export class UserRoleController {
   constructor(private readonly userRoleService: UserRoleService) {}
-
-  @Get()
-  async findAll(): Promise<ApiResponseDto> {
-    const userRoles = await this.userRoleService.findAll();
-    return ApiResponseDto.success(
-      { userRoles },
-      'User roles fetched successfully',
-    );
-  }
 }

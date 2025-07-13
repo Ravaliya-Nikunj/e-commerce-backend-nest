@@ -38,7 +38,12 @@ export class AuthController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid credentials',
+    description: 'Unauthorized - Missing or invalid token',
+    type: ApiResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Access denied',
     type: ApiResponseDto,
   })
   async signIn(

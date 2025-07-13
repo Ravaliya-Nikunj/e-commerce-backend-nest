@@ -7,7 +7,6 @@ import {
   ApiOkResponse,
   getSchemaPath,
   ApiExtraModels,
-  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
 import { UserService } from '../services/user.service';
@@ -62,10 +61,12 @@ export class UserController {
   @ApiResponse({
     status: 401,
     description: 'Unauthorized - Missing or invalid token',
+    type: ApiResponseDto,
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - User does not have required role',
+    description: 'Forbidden - Access denied',
+    type: ApiResponseDto,
   })
   async findAll(
     @Query('includeAdmins') includeAdmins?: string,

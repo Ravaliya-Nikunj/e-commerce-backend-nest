@@ -87,6 +87,7 @@ const bootstrap = async () => {
   SwaggerModule.setup('api-docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
+      displayOperationId: true,
     },
   });
 
