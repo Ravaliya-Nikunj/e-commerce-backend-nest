@@ -1,12 +1,20 @@
 import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiOkResponse,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { SignInDto } from '../../../common/dtos/sign-in.dto';
 import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
 import { Public } from '../../../common/decorators/public.decorator';
 import { TokenResponseDto } from '../../../common/dtos/token-response.dto';
+import { ApiExtraModels } from '@nestjs/swagger';
 
 @ApiTags('Admin Authentication')
+@ApiExtraModels(ApiResponseDto, TokenResponseDto)
 @Controller({ path: 'auth/admin', version: '1' })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -15,10 +23,18 @@ export class AuthController {
   @Post('/sign-in')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin sign in' })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Admin successfully signed in',
-    type: TokenResponseDto,
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(ApiResponseDto) },
+        {
+          properties: {
+            data: { $ref: getSchemaPath(TokenResponseDto) },
+          },
+        },
+      ],
+    },
   })
   @ApiResponse({
     status: 401,

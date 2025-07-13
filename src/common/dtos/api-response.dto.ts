@@ -1,9 +1,29 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 export class ApiResponseDto<T = any> {
+  @ApiProperty({
+    description: 'Response message',
+    example: 'Operation completed successfully',
+  })
   message: string;
+
+  @ApiProperty({
+    description: 'Timestamp of the response',
+    example: '2023-07-13T12:34:56.789Z',
+  })
   timestamp: Date;
-  data?: T;
+
+  @ApiPropertyOptional({
+    description: 'Response data payload',
+  })
+  data?: any;
+
+  @ApiProperty({
+    description: 'Indicates if the request was successful',
+    example: true,
+  })
   success: boolean;
-  meta?: any;
+
   constructor(partial?: Partial<ApiResponseDto<T>>) {
     Object.assign(this, partial);
     this.timestamp = new Date();
@@ -15,15 +35,13 @@ export class ApiResponseDto<T = any> {
       success: true,
       data,
       message,
-      meta,
     });
   }
 
-  static error(message: string, meta?: any): ApiResponseDto {
+  static error(message: string): ApiResponseDto {
     return new ApiResponseDto({
       message,
       success: false,
-      meta,
     });
   }
 }
