@@ -93,14 +93,25 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 - Website - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 
+## Sequalize basic commands
+
+```bash
+npm install --save-dev ts-node typescript @types/node
+
+npx sequelize migration:generate --name create-users
+
+npx sequelize db:migrate:undo --env development
+
+npx sequelize db:migrate --env development
+
+npx sequelize seed:generate --name demo-user
+
+npx sequelize db:seed:all
+
+npx sequelize db:seed:undo:all
+
+```
+
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
-npm install --save-dev ts-node typescript @types/node
-npx sequelize migration:generate --name create-users
-npx sequelize db:migrate:undo --env development
-npx sequelize db:migrate --env development
-npx sequelize seed:generate --name demo-user
-npx sequelize db:seed:all
-npx sequelize db:seed:undo:all
