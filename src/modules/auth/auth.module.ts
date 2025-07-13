@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from '../user/entities/user.entity';
 import { Role } from '../role/entities/role.entity';
@@ -14,16 +12,9 @@ import { UserRoleService } from '../user-roles/services/user-role.service';
 import { RoleRepository } from '../role/repositories/role.repository';
 import { UserRoleRepository } from '../user-roles/repositories/user-role.repository';
 import { LoggingModule } from '../../logging/logging.module';
-import { SharedModule } from '../../shared/shared.module';
-import { JwtUtil } from '../../shared/utils/jwt.util';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([User, Role, UserRole]),
-    JwtModule.register({}),
-    LoggingModule,
-    SharedModule,
-  ],
+  imports: [SequelizeModule.forFeature([User, Role, UserRole]), LoggingModule],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -32,7 +23,6 @@ import { JwtUtil } from '../../shared/utils/jwt.util';
     RoleService,
     RoleRepository,
     UserRoleService,
-    JwtUtil,
     UserRoleRepository,
   ],
   exports: [],

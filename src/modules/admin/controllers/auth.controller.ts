@@ -4,12 +4,14 @@ import { AuthService } from '../services/auth.service';
 import { SignInDto } from '../../../common/dtos/sign-in.dto';
 import { ApiResponseDto } from '../../../common/dtos/api-response.dto';
 import { TokenResponseDto } from 'src/common/dtos/token-response.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Admin Authentication')
 @Controller({ path: 'auth/admin', version: '1' })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('/sign-in')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin sign in' })

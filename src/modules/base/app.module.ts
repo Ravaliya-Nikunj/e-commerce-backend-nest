@@ -1,14 +1,19 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { LoggingModule } from '../../logging/logging.module';
+import { APP_GUARD } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '../user/user.module';
+import { LoggingModule } from '../../logging/logging.module';
 import { UserRoleModule } from '../user-roles/user-role.module';
 import { RoleModule } from '../role/role.module';
 import { AuthModule } from '../auth/auth.module';
 import { RequestLoggerMiddleware } from '../../common/middleware/request-logger.middleware';
 import { AdminModule } from '../admin/admin.module';
+import { SharedModule } from '../../shared/shared.module';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -16,6 +21,7 @@ import { AdminModule } from '../admin/admin.module';
       isGlobal: true,
       envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
     }),
+    JwtModule.register({ global: true }),
     SequelizeModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -41,9 +47,21 @@ import { AdminModule } from '../admin/admin.module';
     RoleModule,
     UserRoleModule,
     AuthModule,
+    SharedModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    AuthGuard,
+    RolesGuard,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
