@@ -15,7 +15,6 @@ import { AuthGuard } from '../../../common/guards/auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { RoleType } from '../../../common/enums';
-
 @ApiTags('Users')
 @Controller({
   path: 'users',

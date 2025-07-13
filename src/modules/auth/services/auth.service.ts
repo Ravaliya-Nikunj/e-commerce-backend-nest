@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-  ConflictException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 
 import { EmailSignUpDto } from '../dtos/email-sign-up.dto';
 import { UserService } from '../../user/services/user.service';
@@ -21,6 +16,8 @@ import { JwtUtil } from '../../../shared/utils/jwt.util';
 import { UserDto } from '../../user/dtos/user.dto';
 import { plainToClass } from 'class-transformer';
 import { RoleType } from '../../../common/enums';
+import { ContextService } from '../../../shared/services/context.service';
+import { TokenResponseDto } from '../../../common/dtos/token-response.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,6 +26,7 @@ export class AuthService {
     private readonly userRoleService: UserRoleService,
     private readonly sequelize: Sequelize,
     private readonly loggerService: LoggingService,
+    private readonly contextService: ContextService,
     private readonly cryptoUtil: CryptoUtil,
     private readonly bcryptUtil: BcryptUtil,
     private readonly otpUtil: OtpUtil,
@@ -98,7 +96,7 @@ export class AuthService {
     }
   };
 
-  async signIn(signInDto: SignInDto) {
+  async signIn(signInDto: SignInDto): Promise<TokenResponseDto> {
     const { email, password } = signInDto;
 
     // Find user by email
@@ -139,12 +137,26 @@ export class AuthService {
       roleId: roleDetails.id,
     };
     const tokens = this.jwtUtil.generateToken(prepareJwtData);
-    const userDto = plainToClass(UserDto, user, {
+    const userDto: any = plainToClass(UserDto, user, {
       excludeExtraneousValues: true,
     });
     return {
       user: userDto,
       tokens,
     };
+  }
+
+  async getUserDetails(): Promise<UserDto> {
+    const email = this.contextService.getEmail();
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    // Transform to DTO to ensure we only expose the necessary fields
+    const userDto = plainToClass(UserDto, user, {
+      excludeExtraneousValues: true,
+    });
+
+    return userDto;
   }
 }

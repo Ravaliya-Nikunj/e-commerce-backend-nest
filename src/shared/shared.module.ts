@@ -7,10 +7,27 @@ import { CommonUtil } from './utils/common.util';
 import { JwtUtil } from './utils/jwt.util';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { ContextService } from './services/context.service';
 @Global()
 @Module({
   imports: [JwtModule.register({}), ConfigModule],
-  providers: [CryptoUtil, BcryptUtil, OtpUtil, DateUtil, CommonUtil, JwtUtil],
-  exports: [CryptoUtil, BcryptUtil, OtpUtil, DateUtil, CommonUtil, JwtUtil],
+  providers: [
+    CryptoUtil,
+    BcryptUtil,
+    OtpUtil,
+    DateUtil,
+    CommonUtil,
+    JwtUtil,
+    ContextService,
+  ],
+  exports: [
+    CryptoUtil,
+    BcryptUtil,
+    OtpUtil,
+    DateUtil,
+    CommonUtil,
+    JwtUtil,
+    ContextService,
+  ],
 })
 export class SharedModule {}

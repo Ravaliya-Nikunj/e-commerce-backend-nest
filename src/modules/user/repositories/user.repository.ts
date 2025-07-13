@@ -38,10 +38,12 @@ export class UserRepository {
 
     return await this.userModel.findAll(options);
   }
-
   async findByEmail(email: string): Promise<User | null> {
     return await this.userModel.findOne({
       where: { email },
     });
+  }
+  async findByPk(id: string): Promise<User | null> {
+    return await this.userModel.findByPk(id);
   }
 }
