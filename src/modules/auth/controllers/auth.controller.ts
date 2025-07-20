@@ -38,6 +38,8 @@ import { RoleType } from '../../../common/enums';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // ******************************** START User Login / Register  ***********************************
+
   @Public()
   @Post('/user/sign-up')
   @HttpCode(HttpStatus.CREATED)
@@ -108,8 +110,83 @@ export class AuthController {
     const result = await this.authService.signIn(signInDto);
     return ApiResponseDto.success(result, 'Successfully signed in');
   }
+  // ******************************** END User Login / Register  ***********************************
 
-  @Get('/user/me')
+  @Public()
+  @Post('/vendor/sign-up')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Vendor sign up' })
+  @ApiOkResponse({
+    description: 'Vendor successfully signed up',
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(ApiResponseDto) },
+        {
+          properties: {
+            data: { $ref: getSchemaPath(TokenResponseDto) },
+          },
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Missing or invalid token',
+    type: ApiResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Access denied',
+    type: ApiResponseDto,
+  })
+  async vendorSignUp(
+    @Body() emailSignUpDto: EmailSignUpDto,
+  ): Promise<ApiResponseDto<TokenResponseDto>> {
+    const result = await this.authService.doSignUp(
+      emailSignUpDto,
+      RoleType.SELLER,
+    );
+    return ApiResponseDto.success(
+      result,
+      'OTP sent successfully! Check your inbox for the verification code.',
+    );
+  }
+
+  @Public()
+  @Post('/vendor/sign-in')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Vendor sign in' })
+  @ApiOkResponse({
+    description: 'Vendor successfully signed in',
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(ApiResponseDto) },
+        {
+          properties: {
+            data: { $ref: getSchemaPath(TokenResponseDto) },
+          },
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Missing or invalid token',
+    type: ApiResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Access denied',
+    type: ApiResponseDto,
+  })
+  async vendorSignIn(
+    @Body() signInDto: SignInDto,
+  ): Promise<ApiResponseDto<TokenResponseDto>> {
+    const result = await this.authService.signIn(signInDto, RoleType.SELLER);
+    return ApiResponseDto.success(result, 'Successfully signed in');
+  }
+
+  @Get('/me')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get current user information' })
   @ApiOkResponse({

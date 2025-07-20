@@ -35,7 +35,10 @@ export class AuthService {
     private readonly jwtUtil: JwtUtil,
   ) {}
 
-  doSignUp = async (requestBody: EmailSignUpDto) => {
+  doSignUp = async (
+    requestBody: EmailSignUpDto,
+    roleType: RoleType = RoleType.USER,
+  ) => {
     const transaction = await this.sequelize.transaction();
     this.loggerService.log('Transaction started');
     try {
@@ -66,7 +69,7 @@ export class AuthService {
       const hashedPassword = this.bcryptUtil.bcryptPassword(decodedPassword);
       const otp = this.otpUtil.generateOtp();
       const otpDate = this.dateUtil.getEpochFromDate(new Date());
-      const role = await this.roleService.findByName('User');
+      const role = await this.roleService.findByName(roleType);
       const prepareSaveUser: any = {
         firstName,
         lastName,
@@ -96,7 +99,10 @@ export class AuthService {
     }
   };
 
-  async signIn(signInDto: SignInDto): Promise<TokenResponseDto> {
+  async signIn(
+    signInDto: SignInDto,
+    roleType: RoleType = RoleType.USER,
+  ): Promise<TokenResponseDto> {
     const { email, password } = signInDto;
 
     // Find user by email
@@ -120,7 +126,7 @@ export class AuthService {
       throw new BadRequestException('Invalid email or password');
     }
     const roleDetails = await this.roleService.getRoleByUserId(user.id);
-    if (roleDetails.name !== RoleType.USER) {
+    if (roleDetails.name !== roleType) {
       throw new BadRequestException('Invalid email or password');
     }
 
