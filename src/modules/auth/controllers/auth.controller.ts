@@ -33,6 +33,7 @@ import { Response } from 'express';
 import { EmailVerifyDto } from '../dtos/email-verify-dto';
 import { EmailDto } from '../dtos/email.dto';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
+import { ResetPasswordDto } from '../dtos/reset-password.dto';
 
 @ApiTags('Authentication')
 @Controller({
@@ -355,5 +356,83 @@ export class AuthController {
   ): Promise<ApiResponseDto<UserDto>> {
     const userDto = await this.authService.changePassword(changePasswordDto);
     return ApiResponseDto.success(userDto, 'Password changed successfully');
+  }
+
+  @Public()
+  @Post('/request-reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request reset password' })
+  @ApiOkResponse({
+    description: 'Successfully requested reset password',
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(ApiResponseDto) },
+        {
+          properties: {
+            data: {},
+          },
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Missing or invalid token',
+    type: ApiResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Access denied',
+    type: ApiResponseDto,
+  })
+  async requestResetPassword(
+    @Body() resetPasswordDto: EmailDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ApiResponseDto<void>> {
+    const { verificationId, message } =
+      await this.authService.requestResetPassword(resetPasswordDto);
+
+    if (verificationId) {
+      res.setHeader('x-internal-id', verificationId);
+    }
+    return ApiResponseDto.success(null, message);
+  }
+
+  @Public()
+  @Post('/reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset password' })
+  @ApiOkResponse({
+    description: 'Successfully reset password',
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(ApiResponseDto) },
+        {
+          properties: {
+            data: {},
+          },
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Missing or invalid token',
+    type: ApiResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Access denied',
+    type: ApiResponseDto,
+  })
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Headers('x-internal-id') verificationId: string,
+  ): Promise<ApiResponseDto<void>> {
+    const { message } = await this.authService.resetPassword(
+      resetPasswordDto,
+      verificationId,
+    );
+    return ApiResponseDto.success(null, message);
   }
 }

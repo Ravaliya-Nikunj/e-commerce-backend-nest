@@ -25,6 +25,7 @@ import { TokenResponseDto } from '../../../common/dtos/token-response.dto';
 import { EmailVerifyDto } from '../dtos/email-verify-dto';
 import { EmailDto } from '../dtos/email.dto';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
+import { ResetPasswordDto } from '../dtos/reset-password.dto';
 @Injectable()
 export class AuthService {
   private verficationIdDelimeter = '::::';
@@ -353,5 +354,54 @@ export class AuthService {
 
     // Optionally: Log or track password change
     this.loggerService.log(`Password changed for user: ${email}`);
+  }
+
+  async requestResetPassword(
+    emailDto: EmailDto,
+  ): Promise<{ verificationId: string; message: string }> {
+    return this.sendOtp(emailDto);
+  }
+
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+    verificationId: string,
+  ): Promise<{ message: string }> {
+    const { confPassword, newPassword } = resetPasswordDto;
+    if (newPassword !== confPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+    const decodedVerificationId =
+      this.cryptoUtil.getDecryptionString(verificationId);
+    const [userId, roleType, userMail] = decodedVerificationId.split(
+      this.verficationIdDelimeter,
+    );
+    const user = await this.userService.findByEmail(userMail);
+    if (!user) {
+      throw new BadRequestException(`User not found with email: ${userMail}`);
+    }
+    const roleDetails = await this.roleService.getRoleByUserId(user.id);
+    if (userId !== user.id || roleType !== roleDetails.name) {
+      throw new ForbiddenException('Forbidden!');
+    }
+    const isMatch = await this.bcryptUtil.bcryptCompare(
+      newPassword,
+      user.password,
+    );
+    if (isMatch) {
+      throw new BadRequestException(
+        'New password cannot be the same as the old password',
+      );
+    }
+    const hashedNewPassword = this.bcryptUtil.bcryptPassword(newPassword);
+    const prepareUpdateUser: any = {
+      otp: null,
+      otpDate: null,
+      password: hashedNewPassword,
+    };
+    await this.userService.update(prepareUpdateUser, user.id);
+    this.loggerService.log(`Password reset for user: ${userMail}`);
+    return {
+      message: 'Password reset successfully',
+    };
   }
 }
