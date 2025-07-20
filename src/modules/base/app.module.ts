@@ -14,6 +14,7 @@ import { AdminModule } from '../admin/admin.module';
 import { SharedModule } from '../../shared/shared.module';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { AddressModule } from '../address/address.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
     UserRoleModule,
     AuthModule,
     SharedModule,
+    AddressModule,
   ],
   controllers: [],
   providers: [
