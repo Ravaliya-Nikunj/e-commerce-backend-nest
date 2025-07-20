@@ -10,6 +10,15 @@ export class UserService {
   create = async (user: User, transaction?: any): Promise<User> => {
     return await this.userRepository.create(user, transaction);
   };
+
+  update = async (
+    user: User,
+    userId: string,
+    transaction?: any,
+  ): Promise<User> => {
+    return await this.userRepository.update(user, userId, transaction);
+  };
+
   /**
    * Find all users with an option to include admin users
    * @param includeAdmins Whether to include admin users in the result (default: false)

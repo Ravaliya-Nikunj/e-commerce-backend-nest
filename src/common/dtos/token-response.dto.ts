@@ -11,10 +11,24 @@ export class TokenResponseDto {
       lastName: 'Doe',
       email: 'john.doe@example.com',
       userName: 'johndoe',
-      profileImage: 'https://example.com/profiles/johndoe.jpg'
-    }
+      profileImage: 'https://example.com/profiles/johndoe.jpg',
+    },
   })
-  user?: User;
+  user?: User | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Verification ID',
+    type: 'string',
+    example: 'VER-1234567890',
+  })
+  verificationId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Is user verified',
+    type: 'boolean',
+    example: true,
+  })
+  isVerified?: boolean;
 
   @ApiProperty({
     description: 'Authentication tokens',
@@ -33,11 +47,13 @@ export class TokenResponseDto {
     },
     example: {
       accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-      refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-    }
+      refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    },
   })
-  tokens: {
-    accessToken: string;
-    refreshToken: string;
-  };
+  tokens:
+    | {
+        accessToken: string;
+        refreshToken: string;
+      }
+    | undefined;
 }

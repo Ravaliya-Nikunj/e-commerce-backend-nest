@@ -18,6 +18,18 @@ export class UserRepository {
     const user = await this.userModel.create(userData, { transaction });
     return user;
   }
+  async update(
+    user: User,
+    userId: string,
+    transaction?: Transaction,
+  ): Promise<User> {
+    const [, updatedUsers] = await this.userModel.update(user, {
+      where: { id: userId },
+      returning: true,
+      transaction,
+    });
+    return updatedUsers[0];
+  }
   async findAll(excludeAdmins: boolean = true): Promise<User[]> {
     const options = {
       include: [

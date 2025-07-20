@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { CryptoUtil } from './crypto.util';
 
 @Injectable()
 export class CommonUtil {
+  private verficationIdDelimeter = '::::';
+  constructor(private readonly cryptoUtil: CryptoUtil) {}
   /**
    * Generate a unique-style username using name and email
    * @param firstname User's first name
@@ -28,5 +31,12 @@ export class CommonUtil {
     const randomSuffix = Math.floor(100 + Math.random() * 900); // 3-digit number
 
     return `${base}${randomSuffix}`;
+  };
+
+  getVerificationId = (userId: string, roleType: string, email: string) => {
+    const verificationId = this.cryptoUtil.getEncryptionString(
+      `${userId}${this.verficationIdDelimeter}${roleType}${this.verficationIdDelimeter}${email}`,
+    );
+    return verificationId;
   };
 }

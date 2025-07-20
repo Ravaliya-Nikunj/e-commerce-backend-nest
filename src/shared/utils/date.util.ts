@@ -17,8 +17,12 @@ export class DateUtil {
     startDate: string | number,
     endDate?: string | number | Date,
   ): { hours: number; min: number; seconds: number } => {
-    const start = moment(parseInt(startDate.toString()));
+    const start = moment(startDate); // ✅ Don't parseInt
     const end = endDate ? moment(endDate) : moment();
+
+    if (!start.isValid() || !end.isValid()) {
+      throw new Error('Invalid date input provided');
+    }
 
     const duration = moment.duration(end.diff(start));
     const hours = duration.days() * 24 + duration.hours();

@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 
 import { EmailSignUpDto } from '../dtos/email-sign-up.dto';
 import { UserService } from '../../user/services/user.service';
@@ -18,8 +22,12 @@ import { plainToClass } from 'class-transformer';
 import { RoleType } from '../../../common/enums';
 import { ContextService } from '../../../shared/services/context.service';
 import { TokenResponseDto } from '../../../common/dtos/token-response.dto';
+import { EmailVerifyDto } from '../dtos/email-verify-dto';
+import { EmailDto } from '../dtos/email.dto';
+import { ChangePasswordDto } from '../dtos/change-password.dto';
 @Injectable()
 export class AuthService {
+  private verficationIdDelimeter = '::::';
   constructor(
     private readonly userService: UserService,
     private readonly roleService: RoleService,
@@ -89,9 +97,17 @@ export class AuthService {
       };
       await this.userRoleService.create(prepareSaveUserRole, transaction);
 
+      // TODO :: send email along with otp.
+
+      const verificationId = this.commonUtil.getVerificationId(
+        savedUser.id,
+        roleType,
+        savedUser.email,
+      );
+
       await transaction.commit();
 
-      return { email: savedUser.email };
+      return { email: savedUser.email, verificationId };
     } catch (error) {
       this.loggerService.error('Transaction failed', error);
       await transaction.rollback();
@@ -104,7 +120,11 @@ export class AuthService {
     roleType: RoleType = RoleType.USER,
   ): Promise<TokenResponseDto> {
     const { email, password } = signInDto;
-
+    const result: TokenResponseDto = {
+      user: undefined,
+      tokens: undefined,
+      isVerified: true,
+    };
     // Find user by email
     const user = await this.userService.findByEmail(email);
     if (!user) {
@@ -115,7 +135,6 @@ export class AuthService {
     if (user.isDeleted) {
       throw new BadRequestException('Your account has been deactivated');
     }
-
     // Verify password
     const isPasswordValid = await this.bcryptUtil.bcryptCompare(
       this.cryptoUtil.getDecryptionString(password),
@@ -129,13 +148,31 @@ export class AuthService {
     if (roleDetails.name !== roleType) {
       throw new BadRequestException('Invalid email or password');
     }
+    let verificationId = '';
 
     // Check if email is verified
     if (!user.isVerified) {
       this.loggerService.log(
         'Email is not verified send new otp to user and return a response',
       );
+
+      verificationId = this.commonUtil.getVerificationId(
+        user.id,
+        roleType,
+        user.email,
+      );
+      const otp = this.otpUtil.generateOtp();
+      const otpDate = this.dateUtil.getEpochFromDate(new Date());
+      const prepareUpdateUser: any = {
+        otp,
+        otpDate,
+      };
+      await this.userService.update(prepareUpdateUser, user.id);
+      result.verificationId = verificationId;
+      result.isVerified = false;
+      return result;
     }
+
     const prepareJwtData = {
       sub: user.id,
       email: user.email,
@@ -146,17 +183,16 @@ export class AuthService {
     const userDto: any = plainToClass(UserDto, user, {
       excludeExtraneousValues: true,
     });
-    return {
-      user: userDto,
-      tokens,
-    };
+    result.user = userDto;
+    result.tokens = tokens;
+    return result;
   }
 
   async getUserDetails(): Promise<UserDto> {
     const email = this.contextService.getEmail();
     const user = await this.userService.findByEmail(email);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException(`user not found with email :${email}`);
     }
     // Transform to DTO to ensure we only expose the necessary fields
     const userDto = plainToClass(UserDto, user, {
@@ -164,5 +200,158 @@ export class AuthService {
     });
 
     return userDto;
+  }
+
+  async verifyOtp(
+    verifyDto: EmailVerifyDto,
+    verificationId: string,
+  ): Promise<TokenResponseDto> {
+    const { email, otp } = verifyDto;
+    const decodedVerificationId =
+      this.cryptoUtil.getDecryptionString(verificationId);
+    const [userId, roleType, userMail] = decodedVerificationId.split(
+      this.verficationIdDelimeter,
+    );
+    if (email !== userMail) {
+      throw new ForbiddenException('Forbidden!');
+    }
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException(`user not found with email :${email}`);
+    }
+    const roleDetails = await this.roleService.getRoleByUserId(user.id);
+    if (userId !== user.id || roleType !== roleDetails.name) {
+      throw new ForbiddenException('Forbidden!');
+    }
+    if (user.otp !== otp) {
+      throw new BadRequestException('Invalid OTP. Please enter a valid OTP.');
+    }
+    const { min } = this.dateUtil.getDifferenceOfTwoDate(
+      user.otpDate as unknown as string,
+    );
+    if (isNaN(min) || min >= 5) {
+      throw new BadRequestException('OTP expired!');
+    }
+    const prepareUpdateUser: any = {
+      otp: null,
+      otpDate: null,
+      isVerified: true,
+    };
+    await this.userService.update(prepareUpdateUser, user.id);
+    const prepareJwtData = {
+      sub: user.id,
+      email: user.email,
+      role: roleDetails.name,
+      roleId: roleDetails.id,
+    };
+    const tokens = this.jwtUtil.generateToken(prepareJwtData);
+    const userDto: any = plainToClass(UserDto, user, {
+      excludeExtraneousValues: true,
+    });
+    const result: TokenResponseDto = {
+      user: userDto,
+      tokens,
+    };
+    return result;
+  }
+
+  async sendOtp(
+    emailDto: EmailDto,
+  ): Promise<{ verificationId: string; message: string }> {
+    const { email } = emailDto;
+
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException(`User not found with email: ${email}`);
+    }
+
+    const roleDetails = await this.roleService.getRoleByUserId(user.id);
+
+    const otpDate = user.otpDate;
+    let shouldGenerateOtp = false;
+
+    if (!otpDate) {
+      shouldGenerateOtp = true;
+    } else {
+      const { min } = this.dateUtil.getDifferenceOfTwoDate(
+        otpDate as unknown as string,
+      );
+      if (isNaN(min) || min >= 5) {
+        shouldGenerateOtp = true;
+      }
+    }
+
+    let verificationId = '';
+
+    if (shouldGenerateOtp) {
+      const otp = this.otpUtil.generateOtp();
+      const newOtpDate = this.dateUtil.getEpochFromDate(new Date());
+
+      const prepareUpdateUser: any = {
+        otp,
+        otpDate: newOtpDate,
+      };
+
+      await this.userService.update(prepareUpdateUser, user.id);
+
+      // TODO: send OTP in email
+      verificationId = this.commonUtil.getVerificationId(
+        user.id,
+        roleDetails.name,
+        user.email,
+      );
+    }
+    return {
+      verificationId,
+      message: shouldGenerateOtp
+        ? 'OTP sent successfully! Check your inbox for the verification code.'
+        : 'OTP already sent! Please check your inbox.',
+    };
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
+    const { currentPassword, newPassword, confPassword } = changePasswordDto;
+
+    const email = this.contextService.getEmail();
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException(`User not found with email: ${email}`);
+    }
+
+    // Compare provided current password with hashed one in DB
+    const isMatch = await this.bcryptUtil.bcryptCompare(
+      currentPassword,
+      user.password,
+    );
+
+    if (!isMatch) {
+      throw new BadRequestException('Invalid current password');
+    }
+
+    if (newPassword !== confPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+
+    // Prevent password reuse
+    const isSameAsOld = await this.bcryptUtil.bcryptCompare(
+      newPassword,
+      user.password,
+    );
+    if (isSameAsOld) {
+      throw new BadRequestException(
+        'New password cannot be the same as the old password',
+      );
+    }
+
+    // Hash new password and update
+    const hashedNewPassword = this.bcryptUtil.bcryptPassword(newPassword);
+    const prepareUpdateUser: any = {
+      password: hashedNewPassword,
+    };
+    await this.userService.update(prepareUpdateUser, user.id);
+
+    // Optionally: Log or track password change
+    this.loggerService.log(`Password changed for user: ${email}`);
   }
 }
