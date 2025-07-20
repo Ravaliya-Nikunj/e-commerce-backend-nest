@@ -8,6 +8,7 @@ import { JwtUtil } from './utils/jwt.util';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ContextService } from './services/context.service';
+import { CloudinaryUtil } from './utils/cloudinary.utils';
 @Global()
 @Module({
   imports: [JwtModule.register({}), ConfigModule],
@@ -19,6 +20,7 @@ import { ContextService } from './services/context.service';
     CommonUtil,
     JwtUtil,
     ContextService,
+    CloudinaryUtil,
   ],
   exports: [
     CryptoUtil,
@@ -28,6 +30,7 @@ import { ContextService } from './services/context.service';
     CommonUtil,
     JwtUtil,
     ContextService,
+    CloudinaryUtil,
   ],
 })
 export class SharedModule {}

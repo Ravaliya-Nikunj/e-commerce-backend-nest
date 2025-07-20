@@ -26,6 +26,7 @@ import { EmailVerifyDto } from '../dtos/email-verify-dto';
 import { EmailDto } from '../dtos/email.dto';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
 import { ResetPasswordDto } from '../dtos/reset-password.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
 @Injectable()
 export class AuthService {
   private verficationIdDelimeter = '::::';
@@ -187,20 +188,6 @@ export class AuthService {
     result.user = userDto;
     result.tokens = tokens;
     return result;
-  }
-
-  async getUserDetails(): Promise<UserDto> {
-    const email = this.contextService.getEmail();
-    const user = await this.userService.findByEmail(email);
-    if (!user) {
-      throw new BadRequestException(`user not found with email :${email}`);
-    }
-    // Transform to DTO to ensure we only expose the necessary fields
-    const userDto = plainToClass(UserDto, user, {
-      excludeExtraneousValues: true,
-    });
-
-    return userDto;
   }
 
   async verifyOtp(

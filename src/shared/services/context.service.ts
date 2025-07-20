@@ -2,8 +2,6 @@
 import { Injectable, Scope, Inject, BadRequestException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { User } from '../../modules/user/entities/user.entity';
-import { UserRepository } from '../../modules/user/repositories/user.repository';
 declare module 'express' {
   interface Request {
     user?: {

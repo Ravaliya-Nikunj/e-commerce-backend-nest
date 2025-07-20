@@ -8,6 +8,9 @@ import {
   UseGuards,
   Res,
   Headers,
+  Patch,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -15,6 +18,7 @@ import {
   ApiOkResponse,
   getSchemaPath,
   ApiResponse,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { EmailSignUpDto } from '../dtos/email-sign-up.dto';
@@ -34,6 +38,13 @@ import { EmailVerifyDto } from '../dtos/email-verify-dto';
 import { EmailDto } from '../dtos/email.dto';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
 import { ResetPasswordDto } from '../dtos/reset-password.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateUserDto } from '../dtos/update-user.dto';
+import { CommonUtil } from '../../../shared/utils/common.util';
+import {
+  imageFileFilter,
+  profileImageSizeLimit,
+} from '../../../helpers/file-upload.util';
 
 @ApiTags('Authentication')
 @Controller({
@@ -211,42 +222,6 @@ export class AuthController {
         'OTP sent successfully! Check your inbox for the verification code.';
     }
     return ApiResponseDto.success(result, message);
-  }
-
-  @Get('/me')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get current user information' })
-  @ApiOkResponse({
-    description: 'Successfully retrieved user information',
-    schema: {
-      allOf: [
-        { $ref: getSchemaPath(ApiResponseDto) },
-        {
-          properties: {
-            data: { $ref: getSchemaPath(UserDto) },
-          },
-        },
-      ],
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Missing or invalid token',
-    type: ApiResponseDto,
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden - Access denied',
-    type: ApiResponseDto,
-  })
-  @Roles(RoleType.USER, RoleType.SELLER)
-  async getCurrentUser(): Promise<ApiResponseDto<UserDto>> {
-    const userDto = await this.authService.getUserDetails();
-
-    return ApiResponseDto.success(
-      userDto,
-      'User information retrieved successfully',
-    );
   }
 
   @Public()
