@@ -45,7 +45,7 @@ function createModuleStructure() {
 
   fs.mkdirSync(basePath, { recursive: true });
   const classPrefix = toPascalCase(moduleName);
-  const singularModuleName = toSingular(moduleName); // for repository file
+  const singularModuleName = toSingular(moduleName);
 
   folders.forEach((folder) => {
     const folderPath = path.join(basePath, folder);
@@ -89,12 +89,12 @@ export class ${classPrefix}Service {}
         break;
 
       default:
-        // Skip files for dtos/entities
+        // Skip dtos and entities for now
         break;
     }
   });
 
-  // Create the module file itself
+  // Module file
   createFile(
     path.join(basePath, `${moduleName}.module.ts`),
     `import { Module } from '@nestjs/common';
@@ -116,9 +116,10 @@ function registerModuleInAppModule() {
   const importStatement = `import { ${className} } from '${importPath}';`;
 
   let appModuleContent = fs.readFileSync(appModulePath, 'utf8');
+  let updated = false;
 
+  // Add import statement if not exists
   if (!appModuleContent.includes(importStatement)) {
-    // Insert import after the last import
     const lastImportIndex = appModuleContent.lastIndexOf('from ');
     const insertPos = appModuleContent.indexOf('\n', lastImportIndex) + 1;
     appModuleContent =
@@ -126,23 +127,42 @@ function registerModuleInAppModule() {
       importStatement +
       '\n' +
       appModuleContent.slice(insertPos);
+    console.log(`✅ Added import for ${className}`);
+    updated = true;
+  }
 
-    // Add to imports array
-    appModuleContent = appModuleContent.replace(
-      /imports:\s*\[((.|\n)*?)\]/m,
-      (match, inner) => {
-        if (inner.includes(className)) return match; // already present
-        return `imports: [${inner.trim()},\n    ${className}]`;
-      },
-    );
+  // Add to imports array if not exists
+  const importsRegex = /@Module\(\s*\{[\s\S]*?imports:\s*\[([\s\S]*?)\]/;
+  const match = appModuleContent.match(importsRegex);
+  
+  if (match) {
+    const importsContent = match[1];
+    if (!importsContent.includes(className)) {
+      // Find the last item in the imports array before ConfigModule
+      const beforeConfigModule = appModuleContent.split('ConfigModule.forRoot')[0];
+      const lastImportIndex = beforeConfigModule.lastIndexOf(',');
+      const insertPos = lastImportIndex > -1 ? lastImportIndex + 1 : 0;
+      
+      // Insert before ConfigModule
+      const beforeConfigModuleUpdated = beforeConfigModule.slice(0, insertPos) + 
+        (lastImportIndex > -1 ? ' ' : '') + 
+        `${className},` +
+        beforeConfigModule.slice(insertPos);
+      
+      appModuleContent = beforeConfigModuleUpdated + 
+        appModuleContent.substring(beforeConfigModule.length);
+      
+      console.log(`✅ Added ${className} to imports array`);
+      updated = true;
+    }
+  }
 
+  if (updated) {
     fs.writeFileSync(appModulePath, appModuleContent, 'utf8');
-    console.log(`✅ Registered ${className} in app.module.ts`);
   } else {
-    console.log(`ℹ️ ${className} already registered in app.module.ts`);
+    console.log(`ℹ️ ${className} is already properly configured in app.module.ts`);
   }
 }
 
-// Run the generator
 createModuleStructure();
 registerModuleInAppModule();
