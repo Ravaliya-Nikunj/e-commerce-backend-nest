@@ -54,21 +54,17 @@ export class AddressService {
   async update(
     id: string,
     updateAddressDto: UpdateAddressDto,
-    userId: string,
-  ): Promise<UserAddress> {
-    const [affectedCount, [updatedAddress]] =
-      await this.addressRepository.update(id, updateAddressDto, userId);
-
-    if (affectedCount === 0) {
-      throw new NotFoundException('Address not found');
-    }
-
+  ): Promise<AddressDto> {
+    const userId = this.contextService.getUserId();
+    await this.addressRepository.update(id, updateAddressDto, userId);
     // If this is set as default, update other addresses
     if (updateAddressDto.isDefault) {
       await this.addressRepository.setDefaultAddress(id, userId);
     }
-
-    return updatedAddress;
+    const updatedAddress = await this.addressRepository.findOne(id, userId);
+    return plainToClass(AddressDto, updatedAddress, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async remove(id: string): Promise<void> {

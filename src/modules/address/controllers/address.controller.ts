@@ -29,6 +29,8 @@ import { ApiExtraModels } from '@nestjs/swagger';
 import { AddressDto, AddressWithUserDto } from '../dtos/address.dto';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { RoleType } from '../../../common/enums';
+import { UserAddress } from '../entities/address.entity';
+import { UpdateAddressDto } from '../dtos/update-address.dto';
 @ApiTags('Addresses')
 @Controller({ path: 'address' })
 @ApiExtraModels(ApiResponseDto, AddressDto, AddressWithUserDto)
@@ -141,25 +143,24 @@ export class AddressController {
     return ApiResponseDto.success(address, 'Address fetched successfully');
   }
 
-  //   @Patch(':id')
-  //   @HttpCode(HttpStatus.OK)
-  //   @ApiOperation({ summary: 'Update an address' })
-  //   @ApiResponse({
-  //     status: HttpStatus.OK,
-  //     description: 'The address has been updated.',
-  //     type: UserAddress,
-  //   })
-  //   @ApiResponse({
-  //     status: HttpStatus.NOT_FOUND,
-  //     description: 'Address not found',
-  //   })
-  //   async update(
-  //     @Param('id', ParseUUIDPipe) id: string,
-  //     @Body() updateAddressDto: UpdateAddressDto,
-  //     @CurrentUser() user: JwtPayload,
-  //   ): Promise<UserAddress> {
-  //     return this.addressService.update(id, updateAddressDto, user.id);
-  //   }
+  @Patch(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update an address' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The address has been updated.',
+    type: AddressDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Address not found',
+  })
+  async update(
+    @Param('id') id: string,
+    @Body() updateAddressDto: UpdateAddressDto,
+  ): Promise<AddressDto> {
+    return this.addressService.update(id, updateAddressDto);
+  }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

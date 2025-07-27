@@ -24,11 +24,13 @@ export class AddressRepository {
       ...createAddressDto,
       userId,
     };
-    return this.addressModel.create(prepareCreateUserAddress, { transaction });
+    return await this.addressModel.create(prepareCreateUserAddress, {
+      transaction,
+    });
   }
 
   async findAll(userId: string): Promise<UserAddress[]> {
-    return this.addressModel.findAll({
+    return await this.addressModel.findAll({
       where: { userId },
       include: [{ model: User }],
       order: [
@@ -39,7 +41,7 @@ export class AddressRepository {
   }
 
   async findOne(id: string, userId: string): Promise<UserAddress | null> {
-    return this.addressModel.findOne({
+    return await this.addressModel.findOne({
       where: { id, userId },
       include: [{ model: User }],
     });
@@ -50,8 +52,8 @@ export class AddressRepository {
     updateAddressDto: UpdateAddressDto,
     userId: string,
     transaction?: Transaction,
-  ): Promise<[number, UserAddress[]]> {
-    return this.addressModel.update(updateAddressDto, {
+  ): Promise<void> {
+    await this.addressModel.update(updateAddressDto, {
       where: { id, userId },
       returning: true,
       transaction,
@@ -59,7 +61,7 @@ export class AddressRepository {
   }
 
   async remove(id: string, userId: string): Promise<number> {
-    return this.addressModel.destroy({
+    return await this.addressModel.destroy({
       where: { id, userId },
     });
   }

@@ -15,6 +15,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { AddressModule } from '../address/address.module';
+import { PaymentCardsModule } from '../payment-cards/payment-cards.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { AddressModule } from '../address/address.module';
     AuthModule,
     SharedModule,
     AddressModule,
+    PaymentCardsModule,
   ],
   controllers: [],
   providers: [

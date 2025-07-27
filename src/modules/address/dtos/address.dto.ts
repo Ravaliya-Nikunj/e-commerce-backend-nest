@@ -4,6 +4,10 @@ import { Expose, Type } from 'class-transformer';
 import { UserDto } from '../../user/dtos/user.dto';
 
 export class AddressDto {
+  @ApiProperty({ description: 'ID of the address', example: '1234567890' })
+  @Expose()
+  id: string;
+
   @ApiProperty({ description: 'Name of the address', example: 'Home' })
   @Expose()
   name: string;
